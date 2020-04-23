@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 public class Production {
-    private int id;
+    private Long id;
     private double liters;
     private LocalDate date;
 

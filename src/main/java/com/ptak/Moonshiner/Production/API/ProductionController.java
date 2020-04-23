@@ -1,12 +1,14 @@
 package com.ptak.Moonshiner.Production.API;
 
 import com.ptak.Moonshiner.Production.Model.Production;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,9 +16,23 @@ import java.util.List;
 @RequestMapping("/production")
 public class ProductionController {
 
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Autowired
+    WebClient.Builder webClientBuilder;
+
+    @Value("${persistance.application.name}")
+    private String persistanceApplicationName;
+
     @RequestMapping("/{productionId}")
-    public Production getProduction(@PathVariable("productionId") int productionId) {
-        Production production = new Production(1, 2.5, LocalDate.now());
+    public Production getProduction(@PathVariable("productionId") Long productionId) {
+        Production production= webClientBuilder.build()
+                .get()
+                .uri("http://"+persistanceApplicationName+"/moonshine/production/"+ productionId)
+                .retrieve()
+                .bodyToMono(Production.class)
+                .block();
 
         return production;
     }
@@ -24,9 +40,19 @@ public class ProductionController {
 
     @RequestMapping("/all")
     public List<Production> getAll() {
-        Production production = new Production(1, 2.5, LocalDate.now());
-        Production production2 = new Production(2, 3.5, LocalDate.now().plusDays(2));
-        return Arrays.asList(production,production2);
+
+        List<Production> allProductions = Arrays.asList( restTemplate.getForObject("http://"+persistanceApplicationName+"/moonshine/production/all", Production[].class));
+
+        return allProductions;
+
+    /*    List<Production> productions= Arrays.asList(webClientBuilder.build()
+                .get()
+                .uri("http://" + persistanceApplicationName + "/moonshine/production/all")
+                .retrieve()
+                .bodyToMono(Production[].class)
+                .block());
+
+        return productions;*/
 
     }
 }
