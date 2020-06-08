@@ -27,9 +27,9 @@ public class ProductionController {
 
     @RequestMapping("/{productionId}")
     public Production getProduction(@PathVariable("productionId") Long productionId) {
-        Production production= webClientBuilder.build()
+        Production production = webClientBuilder.build()
                 .get()
-                .uri("http://"+persistanceApplicationName+"/moonshine/production/"+ productionId)
+                .uri("http://" + persistanceApplicationName + "/moonshine/production/" + productionId)
                 .retrieve()
                 .bodyToMono(Production.class)
                 .block();
@@ -41,18 +41,15 @@ public class ProductionController {
     @RequestMapping("/all")
     public List<Production> getAll() {
 
-        List<Production> allProductions = Arrays.asList( restTemplate.getForObject("http://"+persistanceApplicationName+"/moonshine/production/all", Production[].class));
-
-        return allProductions;
-
-    /*    List<Production> productions= Arrays.asList(webClientBuilder.build()
+        List<Production> productions = Arrays.asList(webClientBuilder.build()
                 .get()
                 .uri("http://" + persistanceApplicationName + "/moonshine/production/all")
                 .retrieve()
                 .bodyToMono(Production[].class)
                 .block());
 
-        return productions;*/
+        return productions;
 
     }
+
 }
